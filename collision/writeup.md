@@ -43,7 +43,7 @@ To solve this we need to solve think mathmatically. If the function just takes t
 1. The order of the integers does not matter.
 2. The order of the bytes within each integer does matter. 
 
-This means that if we take `hashcode`, divide it by 4 , and put that number into each of the integers that is going into `check_passcode`, we can easily reproduce the password without brute force. Let's do some calculations.
+This means that if we take `hashcode`, divide it by 5, and put that number into each of the integers that is going into `check_passcode`, we can easily reproduce the password without brute force. Let's do some calculations.
 
 ```
 col@ubuntu:~$ irb
