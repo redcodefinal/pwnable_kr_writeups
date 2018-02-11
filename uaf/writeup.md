@@ -83,5 +83,22 @@ int main(int argc, char* argv[]){
 
         return 0;       
 }
-
 ```
+
+# Discovery
+We can see the source code, let's try some testing on the program.
+
+*WITHOUT ARGMENT USE CASES*
+
+321
+123
+213
+312
+132
+231
+
+*WITH ARGUMENT USE CASES*
+
+We can see that....
+
+We need to find some way to overwrite `0x00000000004012d2 Man::introduce()` so when it's called after we free it will call `0x000000000040117a Human::give_shell()`
