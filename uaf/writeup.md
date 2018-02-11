@@ -161,18 +161,35 @@ We need to find some way to overwrite `0x00000000004012d2 Man::introduce()` so w
 If we gdb and breakpoint `Man::introduce()` and do option 1, it will break, if we do option 3 and then 1 it will seg fault and not break.
 
 ```
-   0x0000000000400fcd <+265>:	mov    -0x38(%rbp),%rax
-   0x0000000000400fd1 <+269>:	mov    (%rax),%rax
-   0x0000000000400fd4 <+272>:	add    $0x8,%rax
-   0x0000000000400fd8 <+276>:	mov    (%rax),%rdx
-   0x0000000000400fdb <+279>:	mov    -0x38(%rbp),%rax
-   0x0000000000400fdf <+283>:	mov    %rax,%rdi
-   0x0000000000400fe2 <+286>:	callq  *%rdx
-   0x0000000000400fe4 <+288>:	mov    -0x30(%rbp),%rax
-   0x0000000000400fe8 <+292>:	mov    (%rax),%rax
-   0x0000000000400feb <+295>:	add    $0x8,%rax
-   0x0000000000400fef <+299>:	mov    (%rax),%rdx
-   0x0000000000400ff2 <+302>:	mov    -0x30(%rbp),%rax
-   0x0000000000400ff6 <+306>:	mov    %rax,%rdi
-   0x0000000000400ff9 <+309>:	callq  *%rdx
+(gdb) x/20i $pc-10
+   0x400fce <main+266>:	mov    -0x38(%rbp),%eax
+   0x400fd1 <main+269>:	mov    (%rax),%rax
+   0x400fd4 <main+272>:	add    $0x8,%rax
+=> 0x400fd8 <main+276>:	mov    (%rax),%rdx
+   0x400fdb <main+279>:	mov    -0x38(%rbp),%rax
+   0x400fdf <main+283>:	mov    %rax,%rdi
+   0x400fe2 <main+286>:	callq  *%rdx
+   0x400fe4 <main+288>:	mov    -0x30(%rbp),%rax
+   0x400fe8 <main+292>:	mov    (%rax),%rax
+   0x400feb <main+295>:	add    $0x8,%rax
+   0x400fef <main+299>:	mov    (%rax),%rdx
+   0x400ff2 <main+302>:	mov    -0x30(%rbp),%rax
+   0x400ff6 <main+306>:	mov    %rax,%rdi
+   0x400ff9 <main+309>:	callq  *%rdx
+   0x400ffb <main+311>:	jmpq   0x4010a9 <main+485>
+   0x401000 <main+316>:	mov    -0x60(%rbp),%rax
+   0x401004 <main+320>:	add    $0x8,%rax
+   0x401008 <main+324>:	mov    (%rax),%rax
+   0x40100b <main+327>:	mov    %rax,%rdi
+   0x40100e <main+330>:	callq  0x400d20 <atoi@plt>
+(gdb) x/x 0x401578
+0x401578 <vtable for Man+24>:	0x004012d2
+(gdb) 
+0x40157c <vtable for Man+28>:	0x00000000
+(gdb) x/i $pc
+=> 0x400fd8 <main+276>:	mov    (%rax),%rdx
+(gdb) x/x 0x401578
+0x401578 <vtable for Man+24>:	0x004012d2
+(gdb) 
+
 ```
