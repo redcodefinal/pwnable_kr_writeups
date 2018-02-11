@@ -245,8 +245,6 @@ Breakpoint 1, 0x0000000000400fd1 in main ()
 0x401570 <vtable for Man+16>:	0x000000000040117a
 (gdb) x/x $rdx
 0x7fff115d8758:	0x0000000000000001
-(gdb) x/x *$rdx
-0x1:	Cannot access memory at address 0x1
 (gdb) si
 0x0000000000400fd4 in main ()
 => 0x0000000000400fd4 <main+272>:	48 83 c0 08	add    $0x8,%rax
@@ -254,8 +252,6 @@ Breakpoint 1, 0x0000000000400fd1 in main ()
 0x401570 <vtable for Man+16>:	0x000000000040117a
 (gdb) x/x *$rax
 0x40117a <Human::give_shell()>:	0x10ec8348e5894855
-(gdb) x/x *$rdx
-0x1:	Cannot access memory at address 0x1
 (gdb) x/x $rdx
 0x7fff115d8758:	0x0000000000000001
 (gdb) si
@@ -267,8 +263,6 @@ Breakpoint 1, 0x0000000000400fd1 in main ()
 0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
 (gdb) x/x $rdx
 0x7fff115d8758:	0x0000000000000001
-(gdb) x/x *$rdx
-0x1:	Cannot access memory at address 0x1
 (gdb) si
 0x0000000000400fdb in main ()
 => 0x0000000000400fdb <main+279>:	48 8b 45 c8	mov    -0x38(%rbp),%rax
@@ -278,8 +272,6 @@ Breakpoint 1, 0x0000000000400fd1 in main ()
 0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
 (gdb) x/x $rdx
 0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
-(gdb) x/x *$rdx
-0xffffffffe5894855:	Cannot access memory at address 0xffffffffe5894855
 (gdb) si
 0x0000000000400fdf in main ()
 => 0x0000000000400fdf <main+283>:	48 89 c7	mov    %rax,%rdi
@@ -289,8 +281,6 @@ Breakpoint 1, 0x0000000000400fd1 in main ()
 0x401570 <vtable for Man+16>:	0x000000000040117a
 (gdb) x/x $rdx
 0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
-(gdb) x/x *$rdx
-0xffffffffe5894855:	Cannot access memory at address 0xffffffffe5894855
 (gdb) si
 0x0000000000400fe2 in main ()
 => 0x0000000000400fe2 <main+286>:	ff d2	callq  *%rdx
@@ -298,9 +288,9 @@ Breakpoint 1, 0x0000000000400fd1 in main ()
 0x18d8c50:	0x0000000000401570
 (gdb) x/x *$rax
 0x401570 <vtable for Man+16>:	0x000000000040117a
-(gdb) x/x *$rdx
-0xffffffffe5894855:	Cannot access memory at address 0xffffffffe5894855
 (gdb) x/x $rdx
 0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
 (gdb) 
 ```
+
+
