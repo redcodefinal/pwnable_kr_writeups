@@ -2,6 +2,7 @@
 
 This challenge involves leveraging a Use After Free vulnerability to execute an unexpected function.
 <details>
+<summary> uaf.c </summary>
 <p>
         
 ```c
