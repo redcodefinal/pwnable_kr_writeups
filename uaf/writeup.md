@@ -1,7 +1,9 @@
 # uaf Writeup
 
 This challenge involves leveraging a Use After Free vulnerability to execute an unexpected function.
-
+<details>
+<p>
+        
 ```c
 #include <fcntl.h>
 #include <iostream> 
@@ -85,6 +87,8 @@ int main(int argc, char* argv[]){
 }
 ```
 
+</p>
+</details>
 # Discovery
 We can see the source code, let's try some testing on the program.
 
@@ -102,3 +106,5 @@ We can see the source code, let's try some testing on the program.
 We can see that....
 
 We need to find some way to overwrite `0x00000000004012d2 Man::introduce()` so when it's called after we free it will call `0x000000000040117a Human::give_shell()`
+
+If we gdb and breakpoint `Man::introduce()` and do option 1, it will break, if we do option 3 and then 1 it will seg fault and not break.
