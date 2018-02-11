@@ -190,6 +190,38 @@ If we gdb and breakpoint `Man::introduce()` and do option 1, it will break, if w
 => 0x400fd8 <main+276>:	mov    (%rax),%rdx
 (gdb) x/x 0x401578
 0x401578 <vtable for Man+24>:	0x004012d2
+(gdb) si
+(gdb) info registers
+rax            0x1f64c50	32918608
+rbx            0x1f64ca0	32918688
+rcx            0x0	0
+rdx            0x4012d2	4199122
+rsi            0x0	0
+rdi            0x1f64c50	32918608
+rbp            0x7ffcf7c11880	0x7ffcf7c11880
+rsp            0x7ffcf7c11820	0x7ffcf7c11820
+r8             0x7f50d79cd8e0	139985191491808
+r9             0x7f50d79cf790	139985191499664
+r10            0x7f50d8180740	139985199564608
+r11            0x7f50d7cef930	139985194776880
+r12            0x7ffcf7c11840	140724465113152
+r13            0x7ffcf7c11960	140724465113440
+r14            0x0	0
+r15            0x0	0
+rip            0x400fe2	0x400fe2 <main+286>
+eflags         0x206	[ PF IF ]
+cs             0x33	51
+ss             0x2b	43
+ds             0x0	0
+es             0x0	0
+fs             0x0	0
+gs             0x0	0
+(gdb) x/5i $pc-3
+   0x400fdf <main+283>:	mov    %rax,%rdi
+=> 0x400fe2 <main+286>:	callq  *%rdx
+   0x400fe4 <main+288>:	mov    -0x30(%rbp),%rax
+   0x400fe8 <main+292>:	mov    (%rax),%rax
+   0x400feb <main+295>:	add    $0x8,%rax
 (gdb) 
 
 ```
