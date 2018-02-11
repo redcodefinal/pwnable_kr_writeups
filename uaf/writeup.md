@@ -225,3 +225,82 @@ gs             0x0	0
 (gdb) 
 
 ```
+
+
+```
+(gdb) run
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /home/uaf/uaf 
+1. use
+2. after
+3. free
+1
+
+Breakpoint 1, 0x0000000000400fd1 in main ()
+=> 0x0000000000400fd1 <main+269>:	48 8b 00	mov    (%rax),%rax
+(gdb) x/x $rax
+0x18d8c50:	0x0000000000401570
+(gdb) x/x *$rax
+0x401570 <vtable for Man+16>:	0x000000000040117a
+(gdb) x/x $rdx
+0x7fff115d8758:	0x0000000000000001
+(gdb) x/x *$rdx
+0x1:	Cannot access memory at address 0x1
+(gdb) si
+0x0000000000400fd4 in main ()
+=> 0x0000000000400fd4 <main+272>:	48 83 c0 08	add    $0x8,%rax
+(gdb) x/x $rax
+0x401570 <vtable for Man+16>:	0x000000000040117a
+(gdb) x/x *$rax
+0x40117a <Human::give_shell()>:	0x10ec8348e5894855
+(gdb) x/x *$rdx
+0x1:	Cannot access memory at address 0x1
+(gdb) x/x $rdx
+0x7fff115d8758:	0x0000000000000001
+(gdb) si
+0x0000000000400fd8 in main ()
+=> 0x0000000000400fd8 <main+276>:	48 8b 10	mov    (%rax),%rdx
+(gdb) x/x $rax
+0x401578 <vtable for Man+24>:	0x00000000004012d2
+(gdb) x/x *$rax
+0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
+(gdb) x/x $rdx
+0x7fff115d8758:	0x0000000000000001
+(gdb) x/x *$rdx
+0x1:	Cannot access memory at address 0x1
+(gdb) si
+0x0000000000400fdb in main ()
+=> 0x0000000000400fdb <main+279>:	48 8b 45 c8	mov    -0x38(%rbp),%rax
+(gdb) x/x $rax
+0x401578 <vtable for Man+24>:	0x00000000004012d2
+(gdb) x/x *$rax
+0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
+(gdb) x/x $rdx
+0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
+(gdb) x/x *$rdx
+0xffffffffe5894855:	Cannot access memory at address 0xffffffffe5894855
+(gdb) si
+0x0000000000400fdf in main ()
+=> 0x0000000000400fdf <main+283>:	48 89 c7	mov    %rax,%rdi
+(gdb) x/x $rax
+0x18d8c50:	0x0000000000401570
+(gdb) x/x *$rax
+0x401570 <vtable for Man+16>:	0x000000000040117a
+(gdb) x/x $rdx
+0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
+(gdb) x/x *$rdx
+0xffffffffe5894855:	Cannot access memory at address 0xffffffffe5894855
+(gdb) si
+0x0000000000400fe2 in main ()
+=> 0x0000000000400fe2 <main+286>:	ff d2	callq  *%rdx
+(gdb) x/x $rax
+0x18d8c50:	0x0000000000401570
+(gdb) x/x *$rax
+0x401570 <vtable for Man+16>:	0x000000000040117a
+(gdb) x/x *$rdx
+0xffffffffe5894855:	Cannot access memory at address 0xffffffffe5894855
+(gdb) x/x $rdx
+0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
+(gdb) 
+```
