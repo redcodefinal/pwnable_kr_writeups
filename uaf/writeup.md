@@ -92,16 +92,65 @@ int main(int argc, char* argv[]){
 
 
 # Discovery
-We can see the source code, let's try some testing on the program.
+We can see the source code, let's try some testing on the program without using any arguments.
 
-*WITHOUT ARGMENT USE CASES*
+**Use**
+```bash
+uaf@ubuntu:~$ ./uaf
+1. use
+2. after
+3. free
+1
+My name is Jack
+I am 25 years old
+I am a nice guy!
+My name is Jill
+I am 21 years old
+I am a cute girl!
+```
 
-321
-123
-213
-312
-132
-231
+
+**Free then use**
+```bash
+uaf@ubuntu:~$ ./uaf
+1. use
+2. after
+3. free
+3
+1. use
+2. after
+3. free
+1
+Segmentation fault
+```
+
+Using **after** at any time it crashes because `argv[1]` does not exist and there is no checking on `argc`.
+
+Let's try to use some arguments
+
+The program takes two arguements, the first is how many bytes to read into memory, and the second is a file containing the bytes to be read.
+
+```bash
+uaf@ubuntu:~$ ruby -e "puts ?A*32" > /tmp/input.txt
+uaf@ubuntu:~$ ./uaf 32 /tmp/input.txt
+1. use
+2. after
+3. free
+3
+1. use
+2. after
+3. free
+2
+your data is allocated
+1. use
+2. after
+3. free
+1
+Segmentation fault
+uaf@ubuntu:~$ 
+```
+
+
 
 *WITH ARGUMENT USE CASES*
 
