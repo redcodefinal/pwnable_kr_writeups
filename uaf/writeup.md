@@ -159,3 +159,20 @@ We can see that....
 We need to find some way to overwrite `0x00000000004012d2 Man::introduce()` so when it's called after we free it will call `0x000000000040117a Human::give_shell()`
 
 If we gdb and breakpoint `Man::introduce()` and do option 1, it will break, if we do option 3 and then 1 it will seg fault and not break.
+
+```
+   0x0000000000400fcd <+265>:	mov    -0x38(%rbp),%rax
+   0x0000000000400fd1 <+269>:	mov    (%rax),%rax
+   0x0000000000400fd4 <+272>:	add    $0x8,%rax
+   0x0000000000400fd8 <+276>:	mov    (%rax),%rdx
+   0x0000000000400fdb <+279>:	mov    -0x38(%rbp),%rax
+   0x0000000000400fdf <+283>:	mov    %rax,%rdi
+   0x0000000000400fe2 <+286>:	callq  *%rdx
+   0x0000000000400fe4 <+288>:	mov    -0x30(%rbp),%rax
+   0x0000000000400fe8 <+292>:	mov    (%rax),%rax
+   0x0000000000400feb <+295>:	add    $0x8,%rax
+   0x0000000000400fef <+299>:	mov    (%rax),%rdx
+   0x0000000000400ff2 <+302>:	mov    -0x30(%rbp),%rax
+   0x0000000000400ff6 <+306>:	mov    %rax,%rdi
+   0x0000000000400ff9 <+309>:	callq  *%rdx
+```
