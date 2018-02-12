@@ -286,173 +286,87 @@ Program received signal SIGSEGV, Segmentation fault.
 Whoa! Shouldn't the 2nd breakpoint gotten hit? Instead it got a `SIGSEGV` at `0x400fd8`. Curious, lets try with some fuzzing data.
 
 
-
-#### Testing
-
-**run without arguments**
-
-**run with arguments**
-
-**gathering exploit information**
-
-
-
-### Radare2
-
-#### Information Gathering
-
-**Info Functions**
-
-**Disassembly of main**
-
-**Places we set out breakpoints**
-
-
-#### Testing
-
-**run without arguments**
-
-**run with arguments**
-
-**gathering exploit information**
-
-We can see that....
-
-We need to find some way to overwrite `0x00000000004012d2 Man::introduce()` so when it's called after we free it will call `0x000000000040117a Human::give_shell()`
-
-If we gdb and breakpoint `Man::introduce()` and do option 1, it will break, if we do option 3 and then 1 it will seg fault and not break.
-
 ```
-(gdb) x/20i $pc-10
-   0x400fce <main+266>:	mov    -0x38(%rbp),%eax
-   0x400fd1 <main+269>:	mov    (%rax),%rax
-   0x400fd4 <main+272>:	add    $0x8,%rax
-=> 0x400fd8 <main+276>:	mov    (%rax),%rdx
-   0x400fdb <main+279>:	mov    -0x38(%rbp),%rax
-   0x400fdf <main+283>:	mov    %rax,%rdi
-   0x400fe2 <main+286>:	callq  *%rdx
-   0x400fe4 <main+288>:	mov    -0x30(%rbp),%rax
-   0x400fe8 <main+292>:	mov    (%rax),%rax
-   0x400feb <main+295>:	add    $0x8,%rax
-   0x400fef <main+299>:	mov    (%rax),%rdx
-   0x400ff2 <main+302>:	mov    -0x30(%rbp),%rax
-   0x400ff6 <main+306>:	mov    %rax,%rdi
-   0x400ff9 <main+309>:	callq  *%rdx
-   0x400ffb <main+311>:	jmpq   0x4010a9 <main+485>
-   0x401000 <main+316>:	mov    -0x60(%rbp),%rax
-   0x401004 <main+320>:	add    $0x8,%rax
-   0x401008 <main+324>:	mov    (%rax),%rax
-   0x40100b <main+327>:	mov    %rax,%rdi
-   0x40100e <main+330>:	callq  0x400d20 <atoi@plt>
-(gdb) x/x 0x401578
-0x401578 <vtable for Man+24>:	0x004012d2
-(gdb) 
-0x40157c <vtable for Man+28>:	0x00000000
-(gdb) x/i $pc
-=> 0x400fd8 <main+276>:	mov    (%rax),%rdx
-(gdb) x/x 0x401578
-0x401578 <vtable for Man+24>:	0x004012d2
-(gdb) si
-(gdb) info registers
-rax            0x1f64c50	32918608
-rbx            0x1f64ca0	32918688
-rcx            0x0	0
-rdx            0x4012d2	4199122
-rsi            0x0	0
-rdi            0x1f64c50	32918608
-rbp            0x7ffcf7c11880	0x7ffcf7c11880
-rsp            0x7ffcf7c11820	0x7ffcf7c11820
-r8             0x7f50d79cd8e0	139985191491808
-r9             0x7f50d79cf790	139985191499664
-r10            0x7f50d8180740	139985199564608
-r11            0x7f50d7cef930	139985194776880
-r12            0x7ffcf7c11840	140724465113152
-r13            0x7ffcf7c11960	140724465113440
-r14            0x0	0
-r15            0x0	0
-rip            0x400fe2	0x400fe2 <main+286>
-eflags         0x206	[ PF IF ]
-cs             0x33	51
-ss             0x2b	43
-ds             0x0	0
-es             0x0	0
-fs             0x0	0
-gs             0x0	0
-(gdb) x/5i $pc-3
-   0x400fdf <main+283>:	mov    %rax,%rdi
-=> 0x400fe2 <main+286>:	callq  *%rdx
-   0x400fe4 <main+288>:	mov    -0x30(%rbp),%rax
-   0x400fe8 <main+292>:	mov    (%rax),%rax
-   0x400feb <main+295>:	add    $0x8,%rax
-(gdb) 
-
-```
-
-
-```
-(gdb) run
-The program being debugged has been started already.
-Start it from the beginning? (y or n) y
-Starting program: /home/uaf/uaf 
+(gdb) run 8 /tmp/input.txt
+Starting program: /home/uaf/uaf 8 /tmp/input.txt
+1. use
+2. after
+3. free
+3
+1. use
+2. after
+3. free
+2
+your data is allocated
+1. use
+2. after
+3. free
+2
+your data is allocated
 1. use
 2. after
 3. free
 1
 
-Breakpoint 1, 0x0000000000400fd1 in main ()
-=> 0x0000000000400fd1 <main+269>:	48 8b 00	mov    (%rax),%rax
-(gdb) x/x $rax
-0x18d8c50:	0x0000000000401570
-(gdb) x/x *$rax
-0x401570 <vtable for Man+16>:	0x000000000040117a
-(gdb) x/x $rdx
-0x7fff115d8758:	0x0000000000000001
+Breakpoint 1, 0x0000000000400fcd in main ()
+1: x/i $pc
+=> 0x400fcd <main+265>:	mov    -0x38(%rbp),%rax
+2: /x $rax = 0x1
+3: /x *$rax = <error: Cannot access memory at address 0x1>
+4: /x $rdx = 0x7fff781e9ed8
+5: /x *$rdx = 0x1
+(gdb) si
+0x0000000000400fd1 in main ()
+1: x/i $pc
+=> 0x400fd1 <main+269>:	mov    (%rax),%rax
+2: /x $rax = 0x2410c50
+3: /x *$rax = 0x3f3e3d3c
+4: /x $rdx = 0x7fff781e9ed8
+5: /x *$rdx = 0x1
 (gdb) si
 0x0000000000400fd4 in main ()
-=> 0x0000000000400fd4 <main+272>:	48 83 c0 08	add    $0x8,%rax
-(gdb) x/x $rax
-0x401570 <vtable for Man+16>:	0x000000000040117a
-(gdb) x/x *$rax
-0x40117a <Human::give_shell()>:	0x10ec8348e5894855
-(gdb) x/x $rdx
-0x7fff115d8758:	0x0000000000000001
+1: x/i $pc
+=> 0x400fd4 <main+272>:	add    $0x8,%rax
+2: /x $rax = 0x434241403f3e3d3c
+3: /x *$rax = <error: Cannot access memory at address 0x434241403f3e3d3c>
+4: /x $rdx = 0x7fff781e9ed8
+5: /x *$rdx = 0x1
 (gdb) si
 0x0000000000400fd8 in main ()
-=> 0x0000000000400fd8 <main+276>:	48 8b 10	mov    (%rax),%rdx
-(gdb) x/x $rax
-0x401578 <vtable for Man+24>:	0x00000000004012d2
-(gdb) x/x *$rax
-0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
-(gdb) x/x $rdx
-0x7fff115d8758:	0x0000000000000001
+1: x/i $pc
+=> 0x400fd8 <main+276>:	mov    (%rax),%rdx
+2: /x $rax = 0x434241403f3e3d44
+3: /x *$rax = <error: Cannot access memory at address 0x434241403f3e3d44>
+4: /x $rdx = 0x7fff781e9ed8
+5: /x *$rdx = 0x1
 (gdb) si
-0x0000000000400fdb in main ()
-=> 0x0000000000400fdb <main+279>:	48 8b 45 c8	mov    -0x38(%rbp),%rax
-(gdb) x/x $rax
-0x401578 <vtable for Man+24>:	0x00000000004012d2
-(gdb) x/x *$rax
-0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
-(gdb) x/x $rdx
-0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
+
+Program received signal SIGSEGV, Segmentation fault.
+0x0000000000400fd8 in main ()
+1: x/i $pc
+=> 0x400fd8 <main+276>:	mov    (%rax),%rdx
+2: /x $rax = 0x434241403f3e3d44
+3: /x *$rax = <error: Cannot access memory at address 0x434241403f3e3d44>
+4: /x $rdx = 0x7fff781e9ed8
+5: /x *$rdx = 0x1
 (gdb) si
-0x0000000000400fdf in main ()
-=> 0x0000000000400fdf <main+283>:	48 89 c7	mov    %rax,%rdi
-(gdb) x/x $rax
-0x18d8c50:	0x0000000000401570
-(gdb) x/x *$rax
-0x401570 <vtable for Man+16>:	0x000000000040117a
-(gdb) x/x $rdx
-0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
-(gdb) si
-0x0000000000400fe2 in main ()
-=> 0x0000000000400fe2 <main+286>:	ff d2	callq  *%rdx
-(gdb) x/x $rax
-0x18d8c50:	0x0000000000401570
-(gdb) x/x *$rax
-0x401570 <vtable for Man+16>:	0x000000000040117a
-(gdb) x/x $rdx
-0x4012d2 <Man::introduce()>:	0x10ec8348e5894855
+
+Program terminated with signal SIGSEGV, Segmentation fault.
+The program no longer exists.
 (gdb) 
 ```
+At the end, we can see `rax` contains some of our fuzzing data, With a bunch of sequential data. `rax` will be moved into `rdx` which will be the location that is jumped to in the `call *rdx`
+
+
+We need to find some way to overwrite `0x00000000004012d2 Man::introduce()` so when it's called after we free it will call `0x000000000040117a Human::give_shell()`
+
+#### Testing
+
+**run without arguments**
+
+**run with arguments**
+
+**gathering exploit information**
+
 
 
