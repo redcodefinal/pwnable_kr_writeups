@@ -507,7 +507,7 @@ Breakpoint 1, 0x0000000000400fcd in main ()
 4: /x $rdx = 0x40117a
 5: /x *$rdx = 0xe5894855
 ```
-We can see we are in `give_shell`!Let's run it for real now
+We can see we are in `give_shell`! Let's run it for real now
 
 ## Solution
 ```
