@@ -93,7 +93,8 @@ int main(int argc, char* argv[]){
 
 # Discovery
 
-**SOURCE CODE ANALYSIS HERE**
+## Source Code Analysis
+We see that there is a class named `Human` with a `virtual` function `give_shell`. This is obviously our winner function. `Man` and `Woman` inherit `Human`. Two objects are crearted one `Man`, one `Woman`. The user is presented with a menu offering choices Use, After, and Free indexed by the numbers 1, 2, and 3 respectively. If the user uses 1, the program calls the `introduce` function for both the `Man` and the `Woman`. Option 2, After, will copy `argv[1]` bytes from the file at `argv[2]` into memory somewhere. Option 3 will delete the `Man` and `Woman` objects.
 
 ## Running the program
 We can see what the source code says, let's try things out for real first to get an idea of what we are looking at.
@@ -126,6 +127,7 @@ uaf@ubuntu:~$ ./uaf
 1
 Segmentation fault
 ```
+Freeing causes use to crash!
 
 Using **after** at any time it crashes because `argv[1]` does not exist and there is no checking on `argc`.
 
@@ -191,7 +193,7 @@ Non-debugging symbols:
 0x0000000000401376  Woman::introduce()
 <-- *********shortened for brevity********* -->
 ```
-Let's set a breakpoint on `Man::introduce()` at `0x00000000004012d2`. This way we can see what happens before, and after we free. We know the program is going to crash on the line `m->introduce();`, we need to find that code. When we disassemble main, we won't see a function call listed for `Man::introduce()` this is because `Human::introduce()` is `virtual` meaning it can be overridden, and the function will be stored inside the classes vtable. This results in the code below out of the compiler.
+Let's set a breakpoint on `Man::introduce()` at `0x00000000004012d2`. This way we can see what happens before, and after we free. We know the program is going to crash on the line `m->introduce();`, we need to find that code. When we disassemble main, we won't see a function call listed for `Man::introduce()` this is because `Human::introduce()` is `virtual` meaning it can be overridden, and the function will be stored inside the class's vtable. This results in the code below out of the compiler.
 
 ```
 (gdb) disas main
@@ -370,7 +372,7 @@ Program terminated with signal SIGSEGV, Segmentation fault.
 The program no longer exists.
 (gdb) 
 ```
-If we can supply `rax` with a valid function address, `rax` will be moved into `rdx` which will be the location that is jumped to in the `call *rdx` and we can get our win! We need to find some way to overwrite `0x00000000004012d2 Man::introduce()` so when it's called after we free it will call `0x000000000040117a Human::give_shell()` When looking at what `rax` evaluates out to when changed into `char`, it starts at `60` which is where we started in our fuzz data. Therefore, all we need to do is write our 8 byte address-`0x8` to the file at `/tmp/input.txt` run uaf with `./uaf 8 /tmp/input.txt` and use options `3221`. Let's find our vtable entries.
+If we can supply `rax` with a valid function address, `rax` will be moved into `rdx` which will be the location that is jumped to in the `call *rdx` and we can get our win! We need to find some way to overwrite the pointer to `0x00000000004012d2 Man::introduce()` so when it's called after we free it will call `0x000000000040117a Human::give_shell()` When looking at what `rax` evaluates out to when changed into `char`, it starts at `60` which is where we started in our fuzz data. Therefore, all we need to do is write our 8 byte address-`0x8` to the file at `/tmp/input.txt` run uaf with `./uaf 8 /tmp/input.txt` and use options `3221`. Let's find our vtable entries.
 
 ```
 (gdb) run
