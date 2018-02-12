@@ -341,7 +341,7 @@ We see that the memory location `rax` points to is some of our fuzz data!
 4: /x $rdx = 0x7fff781e9ed8
 5: /x *$rdx = 0x1
 ```
-After the value at the location of `rax` is moved into `rax` and made into a QWORD. Now we can see we have quite a lot of sequential characters in rax, we now know we have 
+After the value at the location of `rax` is moved into `rax` and made into a QWORD. Now we can see we have quite a lot of sequential characters in rax, we now know we have inserted code into the5
 
 ```
 (gdb) si
