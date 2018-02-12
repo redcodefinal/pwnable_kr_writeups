@@ -285,8 +285,8 @@ Program received signal SIGSEGV, Segmentation fault.
 
 Whoa! Shouldn't the 2nd breakpoint gotten hit? Instead it got a `SIGSEGV` at `0x400fd8`. Curious, lets try with some fuzzing data.
 
-
 ```
+uaf@ubuntu:~$ ruby -e "100.times { |x| print (x+60).chr}; print ?\x0a" > /tmp/input.txt
 (gdb) run 8 /tmp/input.txt
 Starting program: /home/uaf/uaf 8 /tmp/input.txt
 1. use
