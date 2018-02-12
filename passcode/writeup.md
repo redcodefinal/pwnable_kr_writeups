@@ -1,6 +1,9 @@
 # passcode Writeup
 
 In this challenege you will defeat a login program with a bug the user accidentally left in.
+<details>
+<summary> passcode.c </summary>
+<p>
 
 ```c
 #include <stdio.h>
@@ -47,7 +50,8 @@ int main(){
         return 0;       
 }
 ```
-
+</p>
+</details>	
 ## Discovery
 First thing we want to do is to look at the source code. Looking over the code might not make it 100% clear where the bug is, however with a little testing we can learn some interesting things about this program.
 
@@ -61,6 +65,7 @@ Welcome Ian!
 enter passcode1 : 123456
 Segmentation fault
 ```
+
 Whoa. That's interesting!
 
 Next, we want to try running to program and see where there could be a vulnerability. We see that the `name[]` array has a size of 100. Let's try 100 A's.
