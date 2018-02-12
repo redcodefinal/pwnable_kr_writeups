@@ -51,7 +51,8 @@ int main(){
 }
 ```
 </p>
-</details>	
+</details>
+
 ## Discovery
 First thing we want to do is to look at the source code. Looking over the code might not make it 100% clear where the bug is, however with a little testing we can learn some interesting things about this program.
 
