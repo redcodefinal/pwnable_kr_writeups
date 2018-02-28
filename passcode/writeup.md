@@ -314,7 +314,7 @@ End of assembler dump.
 ```
 Our address is `0x0x804a004`, this is what we will be sticking into `passcode1`, now lets find the address of our winner winner chicken dinner function. We see in `login` a `system` call, we can safely say `0x080485e3` is it.
 
-When we look at `passcode.c` we see the `passcode1` input only will accept a decimal number via the format string `"%d"`. therefore, we will want to take our winner winner address and convert it into decimal, `134514147`.
+When we look at `passcode.c` we see the `passcode1` input only will accept a decimal number via the format string `"%d"`. therefore, we will want to take our winner winner address `0x080485e3` and convert it into decimal, `134514147`.
 
 With all this information we can write the solution now!
 
